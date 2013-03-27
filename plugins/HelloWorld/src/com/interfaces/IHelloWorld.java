@@ -1,4 +1,4 @@
-package interfaces;
+package com.interfaces;
 
 public interface IHelloWorld {
 

@@ -1,7 +1,7 @@
-import interfaces.IHelloWorld;
+import com.annotations.GUI;
+import com.interfaces.IHelloWorld;
 
-
-
+@GUI
 public class HelloWorld implements IHelloWorld{
 
 	
@@ -10,7 +10,6 @@ public class HelloWorld implements IHelloWorld{
 
 	@Override
 	public void printHello() {
-		System.out.println("HelloWorld!! plus Modif");
+		System.out.println("HelloWorld!!");
 	}
-	
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package IHM;
+package com.IHM;
 
 import java.io.File;
 

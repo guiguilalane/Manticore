@@ -1,8 +1,8 @@
-import interfaces.IHelloWorld;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -12,10 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+
+import com.core.Plugin;
+import com.interfaces.IHelloWorld;
 
 /**
  *  
@@ -25,24 +29,33 @@ import org.jdom2.input.SAXBuilder;
  * @author guillaume
  *
  */
+/**
+ * @author guillaume
+ *
+ */
 public class Manticore {
 
 	private String configFile;
 	private Map<String, Object> loadedPlugins;
-	private List<String> plugins;
+	private List<Plugin> plugins;
 	URLClassLoader ucl;
 	
-	public List<String> getPlugins() {
+	public List<Plugin> getPlugins() {
 		return plugins;
 	}
 	
 	public Manticore(){
-		plugins = new ArrayList<String>();
+		plugins = new ArrayList<Plugin>();
 		loadedPlugins = new HashMap<String, Object>();
 	}
 	
-	private Object loadConfigFile(String configFile)
+	/**
+	 * @param plugin the plugin property file
+	 * @return the object that use Core functionnalities
+	 */
+	private Object loadConfigFile(Plugin plugin)
 	{
+		String configFile = plugin.getProperty("location");
 		File f = new File(configFile);
 		Properties prop = new Properties();
 		try {
@@ -58,6 +71,7 @@ public class Manticore {
 		
 		try {
 			toReturn = ucl.loadClass(prop.getProperty("class")).newInstance();
+			plugin.setName(toReturn.getClass().getName());
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -83,6 +97,20 @@ public class Manticore {
 		ucl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
 	}
 	
+	
+	/**
+	 * This method load plugins from the file that contains all plugins refercences.
+	 * 
+	 * 		The plugin file contain : 
+	 * 		<ul>
+	 * 			<li>the path to the property plugin file</li>
+	 * 			<li>when the plugin is loaded (default or not)</li>
+	 * 			<li>how the plugin is loaded (lazy/onload)</li>
+	 * 		</ul>
+	 *  
+	 * 	
+	 * @param pluginsFile the path to the file that contain all plugins
+	 */
 	public void getPlugins(String pluginsFile){
 		File f = new File(pluginsFile);
 		SAXBuilder builder = new SAXBuilder();
@@ -97,8 +125,15 @@ public class Manticore {
 			e.printStackTrace();
 		}
 		Element root = doc.getRootElement();
+		Properties prop;
+		Plugin plug;
 		for(Element plugin: root.getChildren("plugin")){
-			plugins.add(plugin.getAttributeValue("location"));
+			prop = new Properties();
+			for(Attribute attr : plugin.getAttributes()){
+				prop.put(attr.getName(), attr.getValue());
+			}
+			plug = new Plugin(prop);
+			plugins.add(plug);
 		}
 	}
 	
@@ -108,6 +143,7 @@ public class Manticore {
 //		m.findClass();
 		IHelloWorld hello = (IHelloWorld) m.loadConfigFile(m.getPlugins().get(0));
 		hello.printHello();
+		System.out.println(m.getPlugins().get(0));
 		
 //		Explorateur exp = new Explorateur();
 //		exp.setVisible(true);

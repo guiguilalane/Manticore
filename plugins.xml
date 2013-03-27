@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-	<plugin location="plugins/HelloWorld/helloworld.properties" loading="default" method="onload"/>
+	<!-- location : emplacement du plugin, loading : charger par default(ou pas), method : au moment du chargement(onload) ou au moment de l'appel(lazy)-->
+	<plugin location="plugins/HelloWorld/helloworld.properties" loading="default" method="onload" gui="true"/>
 </plugins>
