@@ -1,5 +1,9 @@
 package com.core;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Properties;
 
 public class Plugin {
@@ -14,6 +18,21 @@ public class Plugin {
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getNameFromFile() {
+		String fileName = this.getProperty("location");
+		Properties p = new Properties();
+		try {
+			p.load(new FileReader(fileName));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return p.getProperty("class");
 	}
 	
 	public void setName(String name) {
