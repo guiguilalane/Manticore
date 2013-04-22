@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -23,15 +25,9 @@ import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
 import com.annotations.Console;
+import com.core.loader.Handler;
+import com.interfaces.IHelloWorld;
 
-/**
- *  
- */
-
-/**
- * @author guillaume
- *
- */
 /**
  * @author guillaume
  *
@@ -237,7 +233,13 @@ public class Manticore {
 		return mToLoad;
 	}
 	
-	public static void main(String[] args) {
+	public Object getProxy(String s) throws IllegalArgumentException, ClassNotFoundException {
+		InvocationHandler h = new Handler(s);
+		
+		return Proxy.newProxyInstance(ucl, Class.forName(s).getInterfaces(), h);
+	}
+	
+	public static void main(String[] args) throws IllegalArgumentException, ClassNotFoundException {
 		Manticore m = new Manticore();
 		m.loadPlugins("plugins.xml");
 		m.invokeMethod(m.getPlugins().get(0));
@@ -246,6 +248,27 @@ public class Manticore {
 //		hello.printHello();
 //		System.out.println(m.getPlugins().get(0));
 		
+//		for ( Plugin p : m.plugins ) {
+//			if ( p.getProperty("method").equals("onLoad") ) {
+//				Object o = m.loadConfigFile(p);
+//				m.loadedPlugins.put(p.getName(), o);
+//			}
+//			else if (p.getProperty("method").equals("lazy")) {
+//				Object o = m.getProxy("/comptes/E086770Q/Manticore/plugins/HelloWorld/bin/" + p.getNameFromFile());
+//			}
+//		}
+//		
+//		IHelloWorld hello = (IHelloWorld) m.loadConfigFile(m.getPlugins().get(0));
+//		hello.printHello();
+//		System.out.println(m.getPlugins().get(0));
+//		
+//		IHelloWorld hello2 = (IHelloWorld) m.getProxy(hello);
+//		hello2.printHello();
+		
+//		for ( Plugin p : m.plugins ) {
+//			System.out.println(p.getName());
+//			System.out.println(m.loadedPlugins.get(p.getName()));
+//		}
 //		Explorateur exp = new Explorateur();
 //		exp.setVisible(true);
 	}
