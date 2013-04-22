@@ -1,15 +1,22 @@
+import com.IHM.GuiTest;
+import com.annotations.Console;
 import com.annotations.GUI;
 import com.interfaces.IHelloWorld;
 
-@GUI
 public class HelloWorld implements IHelloWorld{
 
 	
 	public HelloWorld(){
 	}
 
-	@Override
+	@Console
 	public void printHello() {
-		System.out.println("HelloWorld!!");
+		System.out.println("Helloworld!!");
+	}
+	
+	@GUI
+	public void printHelloGUI() {
+		GuiTest test = new GuiTest();
+		test.setVisible(true);
 	}
 }

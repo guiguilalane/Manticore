@@ -1,9 +1,12 @@
 package com.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -19,7 +22,7 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import com.interfaces.IHelloWorld;
+import com.annotations.Console;
 
 /**
  *  
@@ -55,7 +58,7 @@ public class Manticore {
 	 */
 	private Object loadConfigFile(Plugin plugin)
 	{
-		String configFile = plugin.getProperty("location");
+		String configFile = plugin.getProperty(PluginConstants.LOCATION);
 		File f = new File(configFile);
 		Properties prop = new Properties();
 		try {
@@ -68,7 +71,6 @@ public class Manticore {
 		String path = f.getParentFile() + "/" + prop.getProperty("path");
 		findClass(path);
 		Object toReturn = null;
-		
 		try {
 			toReturn = ucl.loadClass(prop.getProperty("class")).newInstance();
 			plugin.setName(toReturn.getClass().getName());
@@ -105,13 +107,13 @@ public class Manticore {
 	 * 		<ul>
 	 * 			<li>the path to the property plugin file</li>
 	 * 			<li>when the plugin is loaded (default or not)</li>
-	 * 			<li>how the plugin is loaded (lazy/onload)</li>
+	 * 			<li>how the plugin is loaded (lazy/onLoad)</li>
 	 * 		</ul>
 	 *  
 	 * 	
 	 * @param pluginsFile the path to the file that contain all plugins
 	 */
-	public void getPlugins(String pluginsFile){
+	public void loadPlugins(String pluginsFile){
 		File f = new File(pluginsFile);
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = null;
@@ -132,18 +134,117 @@ public class Manticore {
 			for(Attribute attr : plugin.getAttributes()){
 				prop.put(attr.getName(), attr.getValue());
 			}
-			plug = new Plugin(prop);
+			File f1 = new File(prop.getProperty(PluginConstants.LOCATION));
+			Properties forGetPluginName = new Properties();
+			
+			try {
+				forGetPluginName.load(new FileReader(f1));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			plug = new Plugin(forGetPluginName.getProperty("class"), prop);
 			plugins.add(plug);
 		}
 	}
 	
+	//Object est de type plugin
+	public void invokeMethod(Plugin p) {
+		
+		String configFile = p.getProperty(PluginConstants.LOCATION);
+		File f = new File(configFile);
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileReader(f));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		String path = f.getParentFile() + "/" + prop.getProperty("path");
+		findClass(path);
+		Object objectToLoad = null;
+		try {
+			objectToLoad = ucl.loadClass(prop.getProperty("class")).newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		Method m = null;
+//		System.out.println(p.getProperty(PluginConstants.GUI).equals("true"));
+//		System.out.println(prop.getProperty(PluginConstants.GUI).equals("true"));
+		//regarder si le plugin se charge en console ou GUI (dans le fichier plugins.xml attribut 'gui')
+		//regarder si le plugin en question possède une interface graphique (dans le fichier .properties du plugin, attribut 'gui')
+		if(p.getProperty(PluginConstants.GUI).equals("true") && prop.getProperty(PluginConstants.GUI).equals("true")) {
+			m = getMethodWithStringAnnotation(prop.getProperty("class"), "com.annotations.GUI");
+			
+		} else {
+			m = getMethodWithStringAnnotation(prop.getProperty("class"), "com.annotations.Console");
+		}
+		
+		if(m != null) {
+			try {
+				m.invoke(objectToLoad, null);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private Method getMethodWithStringAnnotation(String className, String annotationName) {
+		Method mToLoad = null;
+		Class<?> theClass = null;
+		boolean find = false;
+		try {
+			theClass = ucl.loadClass(className);
+//			System.out.println(theClass.getName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Method methods[] = theClass.getMethods();
+		int size = methods.length;
+		int i = 0;
+		while(!find && i < size) {
+			try {
+//				System.out.println(annotationName);
+//				System.out.println(Class.forName("com.annotations.GUI"));
+//				System.out.println(methods[i].getName());
+				if(methods[i].isAnnotationPresent((Class<? extends Annotation>) Class.forName(annotationName))) {
+//				if(methods[i].isAnnotationPresent(Console.class)) {
+					find = true;
+					mToLoad = methods[i];
+				}
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			++i;
+		}
+		return mToLoad;
+	}
+	
 	public static void main(String[] args) {
 		Manticore m = new Manticore();
-		m.getPlugins("plugins.xml");
+		m.loadPlugins("plugins.xml");
+		m.invokeMethod(m.getPlugins().get(0));
 //		m.findClass();
-		IHelloWorld hello = (IHelloWorld) m.loadConfigFile(m.getPlugins().get(0));
-		hello.printHello();
-		System.out.println(m.getPlugins().get(0));
+//		IHelloWorld hello = (IHelloWorld) m.loadConfigFile(m.getPlugins().get(0));
+//		hello.printHello();
+//		System.out.println(m.getPlugins().get(0));
 		
 //		Explorateur exp = new Explorateur();
 //		exp.setVisible(true);

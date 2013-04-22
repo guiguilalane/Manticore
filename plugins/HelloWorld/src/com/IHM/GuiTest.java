@@ -3,6 +3,9 @@ package com.IHM;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import com.interfaces.IHelloWorld;
 
 public class GuiTest {
 
@@ -35,9 +38,14 @@ public class GuiTest {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
+		frame = new JFrame("HelloWorld!");
+		frame.add(new JLabel("Helloworld!!!"));
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public void setVisible(boolean b) {
+		frame.setVisible(b);
 	}
 
 }

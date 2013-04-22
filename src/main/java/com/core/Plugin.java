@@ -8,7 +8,11 @@ public class Plugin {
 	private Properties properties;
 	
 	public Plugin(Properties prop) {
-		name = "";
+		this("", prop);
+	}
+	
+	public Plugin(String name, Properties prop) {
+		this.name = name;
 		properties = prop;
 	}
 
