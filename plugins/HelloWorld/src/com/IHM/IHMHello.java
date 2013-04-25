@@ -13,6 +13,7 @@ public class IHMHello extends JFrame{
 
 	public IHMHello() {
 		super("helloworld");
+		initialize();
 	}
 	
 	public void initialize() {

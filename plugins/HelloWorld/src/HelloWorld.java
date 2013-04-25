@@ -1,22 +1,28 @@
-import com.IHM.GuiTest;
-import com.annotations.Console;
+import com.IHM.IHMHello;
 import com.annotations.GUI;
-import com.interfaces.IHelloWorld;
+import com.interfaces.Core;
+import com.interfaces.IRunnablePlugin;
 
-public class HelloWorld implements IHelloWorld{
+public class HelloWorld implements IRunnablePlugin{
 
+	private Core core;
 	
 	public HelloWorld(){
 	}
-
-	@Console
-	public void printHello() {
-		System.out.println("Helloworld!!");
-	}
 	
 	@GUI
-	public void printHelloGUI() {
-		GuiTest test = new GuiTest();
+	public void runGUI() {
+		IHMHello test = new IHMHello();
 		test.setVisible(true);
+	}
+
+	@Override
+	public void run() {
+		System.out.println("Helloworld!!");
+	}
+
+	@Override
+	public void setCore(Core c) {
+		core = c;
 	}
 }

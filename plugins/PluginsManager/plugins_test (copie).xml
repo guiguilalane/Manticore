@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+	<!-- location : emplacement du plugin, loading : charger par default(ou pas), method : au moment du chargement(onload) ou au moment de l'appel(lazy)-->
+	<!-- default :  Est-ce que le plugin est lancé au chargement de la plateforme -->
+	<!-- method : Ext-ce que le plugin est chargé en mode "paresseux" -->
+	<plugin 
+		location="../HelloWorld/helloworld.properties"
+		default="true"
+		lazy="false"
+		gui="true" />
+		
+	<pluginManager
+		location="../PluginsManager/pluginsManager.properties"
+		default="true"
+		lazy="false"
+		gui="true"/>
+		
+</plugins>

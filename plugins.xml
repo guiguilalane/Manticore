@@ -9,4 +9,10 @@
 		method="onLoad"
 		gui="true" />
 		
+	<pluginManager
+		location="plugins/PluginsManager/pluginsManager.properties"
+		loading="default"
+		method="onLoad"
+		gui="true"/>
+		
 </plugins>
